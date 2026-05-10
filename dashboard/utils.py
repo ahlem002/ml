@@ -263,21 +263,86 @@ def predict_activity(text, model, vectorizer, encoder):
 
 # ============== CLUSTERING UTILITIES ==============
 
+# Columns that are identifiers / constants and should never feed clustering.
+DEFAULT_DROP_COLS = [
+    "EmployeeCount", "StandardHours", "Over18", "EmployeeNumber", "Attrition",
+    "Employee ID", "EmployeeID", "ID",
+    "StartDate", "DOB", "Survey Date", "Training Date", "ExitDate",
+]
+
+
+def suggest_clustering_features(df, max_categorical_cardinality=20):
+    """Pick a sensible default set of columns from any dataframe.
+
+    Rules:
+    - Drop ID/date/constant-like columns.
+    - Keep numeric columns as-is.
+    - Keep low-cardinality object/categorical columns (<= threshold unique
+      values) so we can one-hot-encode them.
+    - Skip columns with >50% missing values.
+    """
+    candidates = [c for c in df.columns if c not in DEFAULT_DROP_COLS]
+    selected = []
+    for col in candidates:
+        series = df[col]
+        if series.isna().mean() > 0.5:
+            continue
+        if pd.api.types.is_numeric_dtype(series):
+            if series.nunique(dropna=True) > 1:
+                selected.append(col)
+        elif pd.api.types.is_object_dtype(series) or pd.api.types.is_categorical_dtype(series):
+            n_unique = series.nunique(dropna=True)
+            if 2 <= n_unique <= max_categorical_cardinality:
+                selected.append(col)
+    return selected
+
+
 def prepare_hr_data(df, selected_features):
-    """Prepare HR data for clustering"""
-    cols_to_drop = ["EmployeeCount", "StandardHours", "Over18", "EmployeeNumber", "Attrition"]
-    df_clean = df.drop(columns=cols_to_drop, errors="ignore")
-    
-    existing_features = [col for col in selected_features if col in df_clean.columns]
+    """Prepare HR data for clustering.
+
+    Works on any dataframe: auto-detects numeric vs categorical columns
+    among `selected_features`, one-hot-encodes the categoricals, fills
+    missing values, and standardizes the result.
+    """
+    df_clean = df.drop(columns=DEFAULT_DROP_COLS, errors="ignore")
+
+    existing_features = [c for c in selected_features if c in df_clean.columns]
+    if not existing_features:
+        raise ValueError(
+            "None of the selected features were found in the uploaded data."
+        )
     df_selected = df_clean[existing_features].copy()
-    
-    categorical_cols = [col for col in ["Department", "JobRole"] if col in df_selected.columns]
+
+    # Strip whitespace from string columns (common issue in HR CSV exports).
+    for col in df_selected.select_dtypes(include="object").columns:
+        df_selected[col] = df_selected[col].astype(str).str.strip()
+
+    numeric_cols = df_selected.select_dtypes(include=[np.number]).columns.tolist()
+    categorical_cols = [c for c in df_selected.columns if c not in numeric_cols]
+
+    # Fill missing values: median for numeric, mode (or "missing") for categorical.
+    for col in numeric_cols:
+        median = df_selected[col].median()
+        df_selected[col] = df_selected[col].fillna(median)
+    for col in categorical_cols:
+        mode = df_selected[col].mode()
+        fill = mode.iloc[0] if not mode.empty else "missing"
+        df_selected[col] = df_selected[col].fillna(fill)
+
     df_encoded = pd.get_dummies(df_selected, columns=categorical_cols, drop_first=True)
-    df_encoded = df_encoded.astype(int)
-    
+    df_encoded = df_encoded.astype(float)
+
+    if df_encoded.shape[1] < 2:
+        raise ValueError(
+            "After encoding, only "
+            f"{df_encoded.shape[1]} feature is available. "
+            "Pick at least two informative columns (or columns whose categories "
+            "produce >=2 dummies) so PCA can plot in 2D."
+        )
+
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(df_encoded)
-    
+
     return X_scaled, df_selected, df_encoded
 
 def perform_clustering(X_scaled, n_clusters=3):

@@ -6,7 +6,12 @@ import seaborn as sns
 from sklearn.metrics import silhouette_score
 import sys
 sys.path.append('..')
-from utils import prepare_hr_data, perform_clustering, get_silhouette_scores
+from utils import (
+    prepare_hr_data,
+    perform_clustering,
+    get_silhouette_scores,
+    suggest_clustering_features,
+)
 
 st.set_page_config(page_title="Employee Clustering", layout="wide")
 
@@ -44,22 +49,31 @@ with col1:
                 st.write(f"**Shape:** {df.shape}")
                 st.write(f"**Missing Values:** {df.isnull().sum().sum()}")
             
-            # Feature selection
+            # Feature selection -- auto-detected from the uploaded data
             st.subheader("Select Features for Clustering")
-            
-            available_features = [
-                "Age", "Education", "Department", "JobRole", "JobLevel",
-                "MonthlyIncome", "TotalWorkingYears", "TrainingTimesLastYear",
-                "WorkLifeBalance", "JobInvolvement", "PerformanceRating",
-                "YearsAtCompany", "YearsInCurrentRole", "YearsSinceLastPromotion",
-                "YearsWithCurrManager"
-            ]
-            
-            if st.button("Perform Clustering"):
+
+            suggested = suggest_clustering_features(df)
+            all_columns = [c for c in df.columns if c not in {"Employee ID", "EmployeeID", "ID"}]
+
+            chosen_features = st.multiselect(
+                "Columns to include (numeric + low-cardinality categoricals work best):",
+                options=all_columns,
+                default=suggested,
+                help=(
+                    "Defaults are auto-detected: numeric columns + categorical "
+                    "columns with at most 20 unique values. Pick at least 2 "
+                    "informative columns so PCA can render in 2D."
+                ),
+            )
+
+            if not chosen_features:
+                st.info("Select at least one feature to enable clustering.")
+
+            if st.button("Perform Clustering", disabled=not chosen_features):
                 try:
                     # Prepare data
-                    X_scaled, df_selected, df_encoded = prepare_hr_data(df, available_features)
-                    
+                    X_scaled, df_selected, df_encoded = prepare_hr_data(df, chosen_features)
+
                     # Perform clustering
                     clusters, kmeans, X_pca, pca = perform_clustering(X_scaled, n_clusters)
                     
