@@ -5,7 +5,6 @@ import os
 # Page Configuration
 st.set_page_config(
     page_title="HR & Skills Analytics Dashboard",
-    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -29,11 +28,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Main Page
-st.markdown('<div class="main-header">📊 HR & Skills Analytics Dashboard</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header">HR & Skills Analytics Dashboard</div>', unsafe_allow_html=True)
 
 st.markdown("""
 ---
-### 🎯 Welcome to the Dashboard
+### Welcome to the Dashboard
 
 This dashboard provides 3 powerful analytics modules for HR and Skills Management:
 
@@ -44,7 +43,7 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     st.markdown("""
-    ### 🔍 Page 1: Skills Extraction
+    ### Page 1: Skills Extraction
     **Automatic Skills Extraction from Job Descriptions**
     
     - Extract technical, managerial, and soft skills
@@ -55,7 +54,7 @@ with col1:
 
 with col2:
     st.markdown("""
-    ### 📈 Page 2: Activity Classification
+    ### Page 2: Activity Classification
     **Classify Job Activities Automatically**
     
     - Categorize activities (Technical/Managerial/Soft Skills)
@@ -66,7 +65,7 @@ with col2:
 
 with col3:
     st.markdown("""
-    ### 👥 Page 3: Employee Clustering
+    ### Page 3: Employee Clustering
     **Analyze Employee Segments**
     
     - K-Means & Hierarchical clustering
@@ -78,7 +77,7 @@ with col3:
 st.markdown("---")
 
 st.info("""
-💡 **How to Use:**
+**How to Use:**
 1. Select a page from the sidebar menu
 2. Upload your data or use sample data
 3. Review results and visualizations

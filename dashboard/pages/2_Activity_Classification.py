@@ -9,9 +9,9 @@ import sys
 sys.path.append('..')
 from utils import clean_text_classification, categorize_activity, train_classification_model, predict_activity
 
-st.set_page_config(page_title="Activity Classification", page_icon="📈", layout="wide")
+st.set_page_config(page_title="Activity Classification", layout="wide")
 
-st.title("📈 Activity Classification")
+st.title("Activity Classification")
 st.markdown("Automatically classify job activities into categories using Machine Learning")
 
 st.markdown("---")
@@ -19,7 +19,7 @@ st.markdown("---")
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    st.subheader("📥 Input Data")
+    st.subheader("Input Data")
     
     input_method = st.radio("Input Method:", ["Single Activity", "Upload CSV"])
     
@@ -30,13 +30,13 @@ with col1:
             height=150
         )
         
-        if st.button("🤖 Classify Activity"):
+        if st.button("Classify Activity"):
             if activity_text.strip():
                 # Use rule-based classification
                 category = categorize_activity(activity_text)
                 st.session_state.predicted_category = category
                 st.session_state.activity_input = activity_text
-                st.success("✅ Classification complete!")
+                st.success("Classification complete!")
             else:
                 st.warning("Please enter an activity description")
     
@@ -50,12 +50,12 @@ with col1:
                 else:
                     df = pd.read_excel(uploaded_file)
                 
-                st.write(f"✅ Loaded {len(df)} rows")
+                st.write(f"Loaded {len(df)} rows")
                 st.dataframe(df.head(), use_container_width=True)
                 
                 text_column = st.selectbox("Select text column:", df.columns)
                 
-                if st.button("🤖 Classify All Activities"):
+                if st.button("Classify All Activities"):
                     # Prepare data
                     df['clean_text'] = df[text_column].apply(clean_text_classification)
                     df['category'] = df['clean_text'].apply(categorize_activity)
@@ -67,29 +67,21 @@ with col1:
                         st.session_state.vectorizer = vectorizer
                         st.session_state.encoder = encoder
                         st.session_state.df_classified = df
-                        st.success("✅ All activities classified!")
+                        st.success("All activities classified!")
                     except Exception as e:
-                        st.error(f"❌ Error during classification: {e}")
+                        st.error(f"Error during classification: {e}")
             
             except Exception as e:
-                st.error(f"❌ Error loading file: {e}")
+                st.error(f"Error loading file: {e}")
 
 with col2:
-    st.subheader("📊 Results")
+    st.subheader("Results")
     
     if input_method == "Single Activity" and "predicted_category" in st.session_state:
         category = st.session_state.predicted_category
         
-        # Color coding
-        color_map = {
-            'Technical': '💻',
-            'Managerial': '👔',
-            'Soft Skills': '🤝',
-            'Other': '❓'
-        }
-        
         st.markdown(f"### Predicted Category")
-        st.success(f"{color_map.get(category, '❓')} **{category}**")
+        st.success(f"**{category}**")
         
         st.info(f"Activity: {st.session_state.activity_input[:200]}...")
     
@@ -123,7 +115,7 @@ with col2:
         # Download button
         csv = df.to_csv(index=False)
         st.download_button(
-            label="📥 Download Results (CSV)",
+            label="Download Results (CSV)",
             data=csv,
             file_name="activity_classification_results.csv",
             mime="text/csv"
@@ -132,10 +124,10 @@ with col2:
 st.markdown("---")
 st.info("""
 **Classification Categories:**
-- **💻 Technical**: Development, data science, programming, engineering
-- **👔 Managerial**: Project management, leadership, planning, strategy
-- **🤝 Soft Skills**: Communication, teamwork, problem solving, collaboration
-- **❓ Other**: Everything else
+- **Technical**: Development, data science, programming, engineering
+- **Managerial**: Project management, leadership, planning, strategy
+- **Soft Skills**: Communication, teamwork, problem solving, collaboration
+- **Other**: Everything else
 
 **How it works:**
 1. Enter activity descriptions or upload a CSV

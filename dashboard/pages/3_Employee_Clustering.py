@@ -8,16 +8,16 @@ import sys
 sys.path.append('..')
 from utils import prepare_hr_data, perform_clustering, get_silhouette_scores
 
-st.set_page_config(page_title="Employee Clustering", page_icon="👥", layout="wide")
+st.set_page_config(page_title="Employee Clustering", layout="wide")
 
-st.title("👥 Employee Clustering & HR Analytics")
+st.title("Employee Clustering & HR Analytics")
 st.markdown("Analyze employee segments using K-Means clustering")
 
 st.markdown("---")
 
 # Sidebar settings
 with st.sidebar:
-    st.subheader("⚙️ Settings")
+    st.subheader("Settings")
     n_clusters = st.slider("Number of Clusters:", 2, 10, 3)
     show_pca = st.checkbox("Show PCA Visualization", value=True)
 
@@ -25,7 +25,7 @@ with st.sidebar:
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    st.subheader("📥 Upload HR Data")
+    st.subheader("Upload HR Data")
     
     uploaded_file = st.file_uploader("Upload HR CSV file", type=['csv', 'xlsx'])
     
@@ -36,16 +36,16 @@ with col1:
             else:
                 df = pd.read_excel(uploaded_file)
             
-            st.write(f"✅ Loaded {len(df)} employees, {len(df.columns)} features")
+            st.write(f"Loaded {len(df)} employees, {len(df.columns)} features")
             
             # Show data info
-            with st.expander("📋 Data Preview"):
+            with st.expander("Data Preview"):
                 st.dataframe(df.head(), use_container_width=True)
                 st.write(f"**Shape:** {df.shape}")
                 st.write(f"**Missing Values:** {df.isnull().sum().sum()}")
             
             # Feature selection
-            st.subheader("🎯 Select Features for Clustering")
+            st.subheader("Select Features for Clustering")
             
             available_features = [
                 "Age", "Education", "Department", "JobRole", "JobLevel",
@@ -55,7 +55,7 @@ with col1:
                 "YearsWithCurrManager"
             ]
             
-            if st.button("🚀 Perform Clustering"):
+            if st.button("Perform Clustering"):
                 try:
                     # Prepare data
                     X_scaled, df_selected, df_encoded = prepare_hr_data(df, available_features)
@@ -73,17 +73,17 @@ with col1:
                     st.session_state.df_with_clusters['Cluster'] = clusters
                     st.session_state.df_selected = df_selected
                     
-                    st.success(f"✅ Clustering complete! {n_clusters} clusters created.")
+                    st.success(f"Clustering complete! {n_clusters} clusters created.")
                 
                 except Exception as e:
-                    st.error(f"❌ Error during clustering: {e}")
+                    st.error(f"Error during clustering: {e}")
                     st.write(str(e))
         
         except Exception as e:
-            st.error(f"❌ Error loading file: {e}")
+            st.error(f"Error loading file: {e}")
 
 with col2:
-    st.subheader("📊 Clustering Results")
+    st.subheader("Clustering Results")
     
     if "clusters" in st.session_state:
         clusters = st.session_state.clusters
@@ -124,7 +124,7 @@ with col2:
 
 # Visualizations
 st.markdown("---")
-st.subheader("📈 Visualizations")
+st.subheader("Visualizations")
 
 if "clusters" in st.session_state and show_pca:
     X_pca = st.session_state.X_pca
@@ -176,7 +176,7 @@ if "clusters" in st.session_state and show_pca:
 
 # Silhouette Analysis
 st.markdown("---")
-st.subheader("🔍 Silhouette Analysis")
+st.subheader("Silhouette Analysis")
 
 if "X_scaled" in st.session_state:
     if st.button("Calculate Silhouette Scores"):
@@ -196,12 +196,12 @@ if "X_scaled" in st.session_state:
             
             # Find optimal
             optimal_k = cluster_nums[np.argmax(silhouette_scores)]
-            st.info(f"💡 Optimal number of clusters: **{optimal_k}** (Silhouette Score: {max(silhouette_scores):.3f})")
+            st.info(f"Optimal number of clusters: **{optimal_k}** (Silhouette Score: {max(silhouette_scores):.3f})")
 
 # Download results
 if "df_with_clusters" in st.session_state:
     st.markdown("---")
-    st.subheader("📥 Download Results")
+    st.subheader("Download Results")
     
     csv = st.session_state.df_with_clusters.to_csv(index=False)
     st.download_button(

@@ -16,63 +16,163 @@ import streamlit as st
 
 @st.cache_resource
 def load_spacy_model():
-    """Load spaCy model for NER"""
-    try:
-        nlp = spacy.load('en_core_web_sm')
-    except:
-        st.warning("Downloading spaCy model...")
-        import os
-        os.system('python -m spacy download en_core_web_sm')
-        nlp = spacy.load('en_core_web_sm')
-    return nlp
+    """Load spaCy model for NER.
 
-SKILL_PATTERNS = [
-    # TECHNICAL SKILLS
-    {'label': 'TECHNICAL_SKILL', 'pattern': [{'LOWER': 'python'}]},
-    {'label': 'TECHNICAL_SKILL', 'pattern': [{'LOWER': 'sql'}]},
-    {'label': 'TECHNICAL_SKILL', 'pattern': [{'LOWER': 'java'}]},
-    {'label': 'TECHNICAL_SKILL', 'pattern': [{'LOWER': 'javascript'}]},
-    {'label': 'TECHNICAL_SKILL', 'pattern': [{'LOWER': 'react'}]},
-    {'label': 'TECHNICAL_SKILL', 'pattern': [{'LOWER': 'angular'}]},
-    {'label': 'TECHNICAL_SKILL', 'pattern': [{'LOWER': 'docker'}]},
-    {'label': 'TECHNICAL_SKILL', 'pattern': [{'LOWER': 'kubernetes'}]},
-    {'label': 'TECHNICAL_SKILL', 'pattern': [{'LOWER': 'aws'}]},
-    {'label': 'TECHNICAL_SKILL', 'pattern': [{'LOWER': 'machine'}, {'LOWER': 'learning'}]},
-    {'label': 'TECHNICAL_SKILL', 'pattern': [{'LOWER': 'data'}, {'LOWER': 'science'}]},
-    {'label': 'TECHNICAL_SKILL', 'pattern': [{'LOWER': 'tableau'}]},
-    
-    # MANAGERIAL SKILLS
-    {'label': 'MANAGERIAL_SKILL', 'pattern': [{'LOWER': 'leadership'}]},
-    {'label': 'MANAGERIAL_SKILL', 'pattern': [{'LOWER': 'management'}]},
-    {'label': 'MANAGERIAL_SKILL', 'pattern': [{'LOWER': 'project'}, {'LOWER': 'management'}]},
-    {'label': 'MANAGERIAL_SKILL', 'pattern': [{'LOWER': 'team'}, {'LOWER': 'management'}]},
-    {'label': 'MANAGERIAL_SKILL', 'pattern': [{'LOWER': 'agile'}]},
-    {'label': 'MANAGERIAL_SKILL', 'pattern': [{'LOWER': 'scrum'}]},
-    {'label': 'MANAGERIAL_SKILL', 'pattern': [{'LOWER': 'budgeting'}]},
-    
-    # SOFT SKILLS
-    {'label': 'SOFT_SKILL', 'pattern': [{'LOWER': 'communication'}]},
-    {'label': 'SOFT_SKILL', 'pattern': [{'LOWER': 'teamwork'}]},
-    {'label': 'SOFT_SKILL', 'pattern': [{'LOWER': 'problem'}, {'LOWER': 'solving'}]},
-    {'label': 'SOFT_SKILL', 'pattern': [{'LOWER': 'critical'}, {'LOWER': 'thinking'}]},
-    {'label': 'SOFT_SKILL', 'pattern': [{'LOWER': 'adaptability'}]},
-    {'label': 'SOFT_SKILL', 'pattern': [{'LOWER': 'creativity'}]},
+    On Streamlit Cloud the model must be installed via requirements.txt
+    (using the wheel URL from the spacy-models GitHub releases) because
+    the runtime environment is sandboxed and `spacy download` may fail.
+    """
+    try:
+        return spacy.load('en_core_web_sm')
+    except OSError:
+        # Fallback: attempt a runtime install via pip (works locally,
+        # may fail on Streamlit Cloud).
+        import subprocess
+        import sys as _sys
+
+        st.warning("spaCy model not found. Attempting to install at runtime...")
+        wheel_url = (
+            "https://github.com/explosion/spacy-models/releases/download/"
+            "en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl"
+        )
+        try:
+            subprocess.check_call(
+                [_sys.executable, "-m", "pip", "install", wheel_url]
+            )
+            return spacy.load('en_core_web_sm')
+        except Exception as exc:
+            st.error(
+                "Could not load the spaCy model `en_core_web_sm`. "
+                "Add the model wheel URL to `requirements.txt`:\n\n"
+                "`https://github.com/explosion/spacy-models/releases/"
+                "download/en_core_web_sm-3.8.0/"
+                "en_core_web_sm-3.8.0-py3-none-any.whl`\n\n"
+                f"Underlying error: {exc}"
+            )
+            st.stop()
+
+# Skills are listed as plain strings (single or multi-word). Patterns
+# are built automatically from these lists, which makes the dictionary
+# easy to extend.
+
+TECHNICAL_SKILLS = [
+    # Programming languages
+    "python", "sql", "java", "javascript", "typescript", "c++", "c#", "go",
+    "ruby", "scala", "r", "matlab", "kotlin", "swift", "php", "rust",
+    # Web / frameworks
+    "react", "angular", "vue", "node", "node.js", "django", "flask",
+    "fastapi", "spring", "express", "html", "css",
+    # Cloud / infra / devops
+    "docker", "kubernetes", "aws", "azure", "gcp", "google cloud",
+    "terraform", "ansible", "jenkins", "ci/cd", "devops", "linux",
+    # Data / ML / AI
+    "machine learning", "deep learning", "data science", "data analysis",
+    "data engineering", "artificial intelligence", "nlp",
+    "natural language processing", "computer vision", "statistics",
+    "regression", "classification", "clustering", "tensorflow", "pytorch",
+    "keras", "pandas", "numpy", "scikit-learn", "spark", "hadoop", "kafka",
+    "airflow", "etl",
+    # BI / databases
+    "tableau", "power bi", "excel", "mysql", "postgresql", "mongodb",
+    "nosql", "mongodb", "snowflake", "databricks",
+    # Engineering / tooling
+    "git", "github", "gitlab", "rest api", "graphql", "microservices",
+    # Domain-specific technical
+    "haccp", "fda", "gmp", "iso", "six sigma", "lean", "kaizen",
+    "manufacturing", "production", "operations", "engineering",
+    "quality control", "quality assurance", "regulatory compliance",
+    "audits", "auditing", "process improvement",
 ]
 
+MANAGERIAL_SKILLS = [
+    "leadership", "management", "manager", "managerial",
+    "project management", "team management", "people management",
+    "operations management", "program management", "product management",
+    "stakeholder management", "vendor management", "change management",
+    "risk management", "performance management", "talent management",
+    "supply chain management",
+    "agile", "scrum", "kanban", "waterfall",
+    "budgeting", "budget", "forecasting", "financial planning",
+    "strategic planning", "strategy", "business strategy",
+    "planning", "execution", "decision making", "decision-making",
+    "mentoring", "coaching", "supervision", "supervising",
+    "delegation", "prioritization", "oversight", "governance",
+    "compliance", "accountability", "recruiting", "hiring",
+    "negotiation", "contract negotiation", "stakeholder engagement",
+    "process management", "kpi", "okr", "roadmap", "roadmapping",
+    "p&l", "business development",
+]
+
+SOFT_SKILLS = [
+    "communication", "written communication", "verbal communication",
+    "interpersonal", "interpersonal skills", "presentation",
+    "public speaking", "active listening", "listening",
+    "teamwork", "team work", "team player", "collaboration",
+    "cooperation", "partnership",
+    "problem solving", "problem-solving", "analytical thinking",
+    "analytical skills", "critical thinking", "logical thinking",
+    "adaptability", "flexibility", "agility",
+    "creativity", "creative thinking", "innovation", "innovative",
+    "time management", "organization", "organizational skills",
+    "organized", "self-organized",
+    "attention to detail", "detail oriented", "detail-oriented",
+    "emotional intelligence", "empathy",
+    "conflict resolution", "conflict management",
+    "multitasking", "multi-tasking",
+    "self-motivated", "motivation", "motivated", "proactive",
+    "proactivity", "initiative",
+    "work ethic", "reliability", "reliable",
+    "customer service", "customer focus", "client management",
+    "relationship building", "relationship management", "networking",
+    "cultural awareness", "diversity", "inclusion",
+]
+
+
+def _build_skill_patterns():
+    """Build spaCy EntityRuler patterns from the skill lists above."""
+    categories = [
+        ("TECHNICAL_SKILL", TECHNICAL_SKILLS),
+        ("MANAGERIAL_SKILL", MANAGERIAL_SKILLS),
+        ("SOFT_SKILL", SOFT_SKILLS),
+    ]
+    patterns = []
+    seen = set()
+    for label, skills in categories:
+        for skill in skills:
+            key = (label, skill.lower())
+            if key in seen:
+                continue
+            seen.add(key)
+            tokens = skill.lower().split()
+            patterns.append({
+                "label": label,
+                "pattern": [{"LOWER": tok} for tok in tokens],
+            })
+    return patterns
+
+
+SKILL_PATTERNS = _build_skill_patterns()
+
+
 def extract_skills(text, nlp):
-    """Extract skills from text using spaCy EntityRuler"""
+    """Extract skills from text using spaCy EntityRuler.
+
+    Returns a dict keyed by skill category (TECHNICAL_SKILL,
+    MANAGERIAL_SKILL, SOFT_SKILL) with deduplicated skill names.
+    """
     if not nlp.has_pipe("entity_ruler"):
         ruler = nlp.add_pipe("entity_ruler", before="ner")
         ruler.add_patterns(SKILL_PATTERNS)
-    
+
     doc = nlp(text.lower())
     skills = {}
     for ent in doc.ents:
-        if ent.label_ in skills:
-            skills[ent.label_].append(ent.text)
-        else:
-            skills[ent.label_] = [ent.text]
-    
+        if ent.label_ not in {"TECHNICAL_SKILL", "MANAGERIAL_SKILL", "SOFT_SKILL"}:
+            continue
+        bucket = skills.setdefault(ent.label_, [])
+        if ent.text not in bucket:
+            bucket.append(ent.text)
+
     return skills
 
 def clean_text(text):

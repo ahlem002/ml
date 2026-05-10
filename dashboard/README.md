@@ -1,10 +1,10 @@
-# 📊 HR & Skills Analytics Dashboard
+# HR & Skills Analytics Dashboard
 
 A comprehensive Streamlit dashboard with 3 integrated pages for HR and Skills analysis.
 
-## 🎯 Dashboard Pages
+## Dashboard Pages
 
-### 1️⃣ **Page 1: Skills Extraction** (`1_Skills_Extraction.py`)
+### Page 1: Skills Extraction (`1_Skills_Extraction.py`)
 Extract technical, managerial, and soft skills from job descriptions using NLP.
 - **Features**: 
   - Text input or CSV upload
@@ -12,7 +12,7 @@ Extract technical, managerial, and soft skills from job descriptions using NLP.
   - Categorizes skills automatically
   - Download results as CSV
 
-### 2️⃣ **Page 2: Activity Classification** (`2_Activity_Classification.py`)
+### Page 2: Activity Classification (`2_Activity_Classification.py`)
 Automatically classify job activities into categories.
 - **Features**:
   - Single activity prediction
@@ -21,7 +21,7 @@ Automatically classify job activities into categories.
   - Confusion matrix & accuracy metrics
   - Download classified results
 
-### 3️⃣ **Page 3: Employee Clustering** (`3_Employee_Clustering.py`)
+### Page 3: Employee Clustering (`3_Employee_Clustering.py`)
 Analyze employee segments using K-Means clustering.
 - **Features**:
   - HR data clustering
@@ -32,7 +32,7 @@ Analyze employee segments using K-Means clustering.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Python 3.8+
@@ -76,7 +76,7 @@ The dashboard will open at `http://localhost:8501`
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 dashboard/
@@ -93,7 +93,7 @@ dashboard/
 
 ---
 
-## 📊 Usage Examples
+## Usage Examples
 
 ### Page 1: Skills Extraction
 **Scenario**: Extract skills from a job posting
@@ -127,7 +127,7 @@ Output: 3 clusters with average silhouette score of 0.65
 
 ---
 
-## 📝 Input Data Formats
+## Input Data Formats
 
 ### Page 1 & 2: CSV Format
 ```csv
@@ -147,7 +147,7 @@ Age,Department,JobRole,MonthlyIncome,Experience
 
 ---
 
-## 🔧 Configuration
+## Configuration
 
 Edit `.streamlit/config.toml` to customize:
 - Theme colors
@@ -158,7 +158,7 @@ Current theme: Coral Red (#FF6B6B)
 
 ---
 
-## 📦 Dependencies
+## Dependencies
 
 | Package | Version | Purpose |
 |---------|---------|---------|
@@ -171,7 +171,7 @@ Current theme: Coral Red (#FF6B6B)
 
 ---
 
-## ✅ Features Checklist
+## Features Checklist
 
 - [x] Multi-page Streamlit app
 - [x] Skills extraction with NLP
@@ -185,7 +185,7 @@ Current theme: Coral Red (#FF6B6B)
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### spaCy model not found
 ```bash
@@ -205,41 +205,41 @@ pip install --upgrade -r requirements.txt
 
 ---
 
-## 📄 Sample Datasets
+## Sample Datasets
 
 You can use the provided datasets:
-- `Cleaned_HR_Data_Analysis.csv` → Page 3
-- `JobsDatasetProcessed (2).csv` → Page 2
-- Custom text data → Page 1
+- `Cleaned_HR_Data_Analysis.csv` -> Page 3
+- `JobsDatasetProcessed (2).csv` -> Page 2
+- Custom text data -> Page 1
 
 ---
 
-## 🎨 Customization
+## Customization
 
 ### Add custom skills patterns
-Edit `utils.py` → `SKILL_PATTERNS` list
+Edit `utils.py` -> `SKILL_PATTERNS` list
 
 ### Change clustering algorithm
-Edit `utils.py` → `perform_clustering()` function
+Edit `utils.py` -> `perform_clustering()` function
 
 ### Modify theme colors
-Edit `.streamlit/config.toml` → `[theme]` section
+Edit `.streamlit/config.toml` -> `[theme]` section
 
 ---
 
-## 📞 Support
+## Support
 
 For issues or questions:
 1. Check the [Streamlit documentation](https://docs.streamlit.io)
 2. Review the code comments in each page
-3. Check the sidebar "ℹ️ Info" sections on each page
+3. Check the sidebar "Info" sections on each page
 
 ---
 
-## 📄 License
+## License
 
 This project is provided as-is for educational and business purposes.
 
 ---
 
-**Created with ❤️ using Streamlit, scikit-learn, and spaCy**
+**Created using Streamlit, scikit-learn, and spaCy**
